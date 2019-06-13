@@ -16,30 +16,25 @@ body{
     height: 100vh;
     box-sizing: border-box;
     background-color : rgba(0,0,0,.2);
-   .song-img {
-                position: relative;
-                width: 70%;
-                padding-top: 70%;
-                height: 0;
-                margin: 0 auto;
-                .img-box {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    bottom: 0;
-                    right: 0;
-                    border-radius: 50%;
-                    background: #000;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    img {
-                        width: 75%;
-                        height: 75%;
-                        border-radius: 50%;
-                    }
-                }
+    .song-img{
+        width : 50%;
+        height: 0;
+        padding-top : 50%;
+        position: relative;
+        margin : 0 auto;
+        .img-wrapper{
+            position : absolute;
+            left : 0;
+            right : 0;
+            top : 0;
+            bottom: 0;
+            
+            img{
+                width : 100%;
+                height: 100%;
             }
+        }
+    }
     .song-info{
         height: 126px;
         width : 100%;

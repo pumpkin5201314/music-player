@@ -1,1 +1,33 @@
-!function(n,a){var o=n(document.body);a.render=function(n){!function(n){var i='<div class="song-name">'+n.song+'</div><div class="singer-name">'+n.singer+'</div><div class="album-name">'+n.album+"</div>";o.find(".song-info").html(i)}(n),function(n){var i=new Image;i.onload=function(){a.blurImg(i,o),o.find(".song-img img").attr("src",n)},i.src=n}(n.image),function(n){n?o.find(".like-btn").addClass("liking"):o.find(".like-btn").removeClass("liking")}(n.isLike)}}(window.Zepto,window.player||(window.player={}));
+(function($,root){
+    var $scope = $(document.body);
+    console.log(root)
+    //渲染当前这首歌的信息
+    function renderInfo(info){
+        var html = '<div class="song-name">'+info.song+'</div>'+
+        '<div class="singer-name">'+info.singer+'</div>'+
+        '<div class="album-name">'+info.album+'</div>';
+        $scope.find(".song-info").html(html)
+    }
+    //渲染当前这首歌的图片
+    function renderImg(src){
+        var img = new Image();
+        img.onload = function(){
+            root.blurImg(img,$scope);
+            $scope.find(".song-img img").attr("src",src)
+        }
+        img.src = src;
+    }
+    function renderIsLike(isLike){
+        if(isLike){
+            $scope.find(".like-btn").addClass("liking");
+        }else{
+            $scope.find(".like-btn").removeClass("liking");
+            
+        }
+    }
+    root.render = function(data){
+        renderInfo(data);
+        renderImg(data.image);
+        renderIsLike(data.isLike)
+    }
+})(window.Zepto,window.player || (window.player = {}))

@@ -1,100 +1,72 @@
 var gulp = require("gulp");
-//4个API:gulp.src  ,gulp.dest  ,gulp.task   ,gulp.watch
-//压缩html
-//gulp中插件的应用   下载插件---》取到插件---》应用插件
-//压缩html
- var htmlClean=require("gulp-htmlclean");
-//压缩图片
-var imageMin=require("gulp-imagemin");
-//压缩js插件
-var uglify=require("gulp-uglify");
-//去掉js中的调试语句
-var debug=require("gulp-strip-debug");
-//将less转换成css
-var less=require("gulp-less");
-//压缩css
-var cleanCss=require("gulp-clean-css");
-
-//给css3添加前缀 两个插件  postcss   <---参数----autoprofixer
-
-var postCss=require("gulp-postcss");
-var autoprefixer=require("autoprefixer"); 
-//开启服务器
-var connect=require("gulp-connect");
+var imagemin = require("gulp-imagemin")
+var htmlclean = require("gulp-htmlclean");
+var uglify = require("gulp-uglify");
+var stripDebug = require("gulp-strip-debug");
+var concat = require("gulp-concat");
+var deporder = require("gulp-deporder");
+var less = require("gulp-less");
+var postcss = require("gulp-postcss");
+var autoprefixer = require("autoprefixer");
+var cssnano = require("cssnano");
+var connect = require("gulp-connect");
 
 
-var folder={
-	src:'src/',
-	dist:'dist/'
+
+var folder = {
+    src : "src/",
+    dist : "dist/"
 }
- //先 命令行中设置环境变量  export NODE_ENV=development  --开发环境
-//判断当前环境变量
-var devMod = process.env.NODE_ENV=="development" ;
 
- console.log(devMod);
+var devMode = process.env.NODE_ENV !== "production";
 
-
-gulp.task("server",function(){
-
-	connect.server({
-		port:9988,
-		livereload:true//监听文件变化--->自动刷新页面
-	})
-
-})
-
-//监听文件变化   2.下次文件变化时-->执行html,css,js
-gulp.task("watch",function(){
-
-	gulp.watch(folder.src + "html/*",["html"]);
-	gulp.watch(folder.src + "css/*",["css"]);
-	gulp.watch(folder.src + "js/*",["js"]);
-		 
-})
-
-
-gulp.task("image",function(){
-	gulp.src(folder.src+"images/*")
-		.pipe(connect.reload())//自动刷新页面
-		.pipe(imageMin())
-		.pipe(gulp.dest(folder.dist+"images/"))
-})
-
-
-
+//流操作 task running
 gulp.task("html",function(){
-	var page = gulp.src(folder.src+"html/*")
-		.pipe(connect.reload())//自动刷新页面
-		if(!devMod){
-			page.pipe(htmlClean())
-		}
-		 
-		page.pipe(gulp.dest(folder.dist+"html/"))
+    var page =  gulp.src(folder.src + "html/index.html")
+                    .pipe(connect.reload());
+    if(!devMode){
+        page.pipe(htmlclean());
+    }
+    page.pipe(gulp.dest(folder.dist + "html/"))
 })
 
-gulp.task("css",function(){
-	var page =	gulp.src(folder.src+"css/*")
-		.pipe(connect.reload())//自动刷新页面
-		.pipe(less())
-		.pipe(postCss([autoprefixer()]))
-		if(!devMod){
-			page.pipe(cleanCss())
-		}
-		 
-		page.pipe(gulp.dest(folder.dist+"css/"))
+gulp.task("images",function(){
+    gulp.src(folder.src + "images/*")
+        .pipe(imagemin())
+        .pipe(gulp.dest(folder.dist+"images/"))
 })
 gulp.task("js",function(){
-	var page = gulp.src(folder.src+"js/*")
-		.pipe(connect.reload())//自动刷新页面
-		if(!devMod){
-			page.pipe(debug())
-				.pipe(uglify())
-		}
-	 
-		page.pipe(gulp.dest(folder.dist+"js/"))
+    var js = gulp.src(folder.src+"js/*")
+            .pipe(connect.reload());
+    if(!devMode){
+        js.pipe(uglify())
+        .pipe(stripDebug())
+    }   
+    js.pipe(gulp.dest(folder.dist+"js/"))
+})
+gulp.task("css",function(){
+    var css = gulp.src(folder.src+"css/*")
+                .pipe(connect.reload())
+                .pipe(less());
+    var options = [autoprefixer()];
+    if(!devMode){
+        options.push(cssnano())
+    }
+        
+    css.pipe(postcss(options))
+    .pipe(gulp.dest(folder.dist + "css/"))
+})
+gulp.task("watch",function(){
+    gulp.watch(folder.src + "html/*",["html"]);
+    gulp.watch(folder.src + "images/*",["images"]);
+    gulp.watch(folder.src + "js/*",["js"]);
+    gulp.watch(folder.src + "css/*",["css"]);
+})
+gulp.task("server",function(){
+    connect.server({
+        port : "8081",
+        livereload : true
+    });
 })
 
-
-gulp.task('default',["html","css","js","image","server","watch"]);//1.gulp时会执行watch
-
-
+gulp.task("default",["html","images","js","css","watch","server"]);
